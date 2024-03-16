@@ -24,7 +24,6 @@ public class DoctorPojoRequest {
     @Size(min = 2, max = 20, message = "First Name must be between 2 to 20 characters.")
     private String firstName;
 
-    @Size(min = 2, max = 20, message = "Middle Name must be between 2 to 20 characters.")
     private String middleName;
 
     @NotBlank(message = "Last Name cannot be null.")
@@ -73,6 +72,7 @@ public class DoctorPojoRequest {
 
     private Roles roles;
 
+    @NotNull(message = "All user must assigned to some supervisor.")
     private Integer supervisorInfo;
 
     private boolean newJoinee;

@@ -6,9 +6,13 @@ import com.hospital.norvic.pojo.response.GlobalApiResponse;
 import com.hospital.norvic.service.DoctorDetailService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.attribute.standard.Media;
+import javax.print.attribute.standard.MediaTray;
 import java.net.MalformedURLException;
 import java.util.List;
 
@@ -19,13 +23,13 @@ public class DoctorController {
 
     private final DoctorDetailService doctorDetailService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GlobalApiResponse> saveDoctorInfo(@ModelAttribute @Valid DoctorPojoRequest doctorPojoRequest)
             throws Exception {
-        doctorDetailService.saveDoctorDetail(doctorPojoRequest);
+
         return ResponseEntity.ok(GlobalApiResponse
                 .builder()
-                .data(null)
+                .data(doctorDetailService.saveDoctorDetail(doctorPojoRequest))
                 .message("la hai vayo hai save")
                 .status(true)
                 .build());

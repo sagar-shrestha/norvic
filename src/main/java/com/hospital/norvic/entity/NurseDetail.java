@@ -38,7 +38,7 @@ public class NurseDetail extends UserDetail {
     @ManyToOne
     @JoinColumn(name = "supervisor_info")
     @JsonBackReference
-    private DoctorDetail supervisorInfo;
+    private UserInfo supervisorInfo;
 
     private boolean newJoinee = false;
 

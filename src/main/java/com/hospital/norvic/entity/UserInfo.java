@@ -1,11 +1,10 @@
 package com.hospital.norvic.entity;
 
 import com.hospital.norvic.common.constant.Gender;
+import com.hospital.norvic.common.constant.UserType;
 import com.hospital.norvic.common.entity.UserDetail;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.io.Serializable;
 
 @Entity
 @Table(name = "user_info")
@@ -46,4 +45,7 @@ public class UserInfo extends UserDetail {
     private String mobile;
 
     private String altMobile;
+
+    @Enumerated(EnumType.STRING)
+    private UserType userType;
 }

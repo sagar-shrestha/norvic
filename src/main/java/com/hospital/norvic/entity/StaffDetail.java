@@ -33,7 +33,7 @@ public class StaffDetail extends UserDetail implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "supervisor_info", foreignKey = @ForeignKey(name = "id"), referencedColumnName = "id")
-    private StaffDetail supervisorInfo;
+    private UserInfo supervisorInfo;
 
     @Enumerated(EnumType.STRING)
     private Roles roles;

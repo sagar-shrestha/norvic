@@ -1,6 +1,5 @@
 package com.hospital.norvic.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hospital.norvic.entity.DoctorDetail;
 import com.hospital.norvic.entity.DoctorInfo;
 import com.hospital.norvic.entity.UserInfo;
@@ -16,10 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +30,7 @@ public class DoctorDetailServiceImpl implements DoctorDetailService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void saveDoctorDetail(DoctorPojoRequest doctorPojoRequest) throws Exception {
+    public DoctorDetail saveDoctorDetail(DoctorPojoRequest doctorPojoRequest) throws Exception {
         UserInfo userInfo = UserInfo.builder()
                 .firstName(doctorPojoRequest.getFirstName())
                 .middleName(doctorPojoRequest.getMiddleName())
@@ -60,12 +56,12 @@ public class DoctorDetailServiceImpl implements DoctorDetailService {
                 .department(doctorPojoRequest.getDepartment())
                 .designation(doctorPojoRequest.getDesignation())
                 .roles(doctorPojoRequest.getRoles())
-                .supervisorInfo(DoctorDetail.builder().id(doctorPojoRequest.getSupervisorInfo()).build())
+                .supervisorInfo(UserInfo.builder().id(doctorPojoRequest.getSupervisorInfo()).build())
                 .newJoinee(doctorPojoRequest.isNewJoinee())
                 .transferred(doctorPojoRequest.isTransferred())
                 .build();
 
-        doctorDetailRepository.save(doctorDetail);
+        return doctorDetailRepository.save(doctorDetail);
     }
 
     @Override
@@ -107,7 +103,7 @@ public class DoctorDetailServiceImpl implements DoctorDetailService {
                     .department(doctorPojoRequest.getDepartment())
                     .designation(doctorPojoRequest.getDesignation())
                     .roles(doctorPojoRequest.getRoles())
-                    .supervisorInfo(DoctorDetail.builder().id(doctorPojoRequest.getSupervisorInfo()).build())
+                    .supervisorInfo(UserInfo.builder().id(doctorPojoRequest.getSupervisorInfo()).build())
                     .newJoinee(doctorPojoRequest.isNewJoinee())
                     .transferred(doctorPojoRequest.isTransferred())
                     .lastBranch(doctorPojoRequest.getLastBranch())
