@@ -1,9 +1,6 @@
 package com.hospital.norvic.pojo.request;
 
-import com.hospital.norvic.common.constant.Department;
-import com.hospital.norvic.common.constant.Designation;
-import com.hospital.norvic.common.constant.Gender;
-import com.hospital.norvic.common.constant.Roles;
+import com.hospital.norvic.common.constant.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -72,8 +69,10 @@ public class DoctorPojoRequest {
 
     private Roles roles;
 
-    @NotNull(message = "All user must assigned to some supervisor.")
     private Integer supervisorInfo;
+
+    @NotBlank(message = "User type cannot be null")
+    private UserType userType;
 
     private boolean newJoinee;
 
