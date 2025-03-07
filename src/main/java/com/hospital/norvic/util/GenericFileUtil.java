@@ -40,7 +40,14 @@ public class GenericFileUtil {
         String location = System.getProperty("user.dir") + File.separator + "images" + File.separator;
         String bak_location = System.getProperty("user.dir") + File.separator + "images_bak" + File.separator;
         File file = new File(location);
-        Files.copy(Paths.get(location + originalFilename), Paths.get(bak_location + existingImage), StandardCopyOption.REPLACE_EXISTING);
+        File backupLocation = new File(bak_location);
+        if (!backupLocation.exists()) {
+            backupLocation.mkdir();
+        }
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        Files.copy(file.toPath(), backupLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
         deleteFile(file);
         return saveFile(image);
     }

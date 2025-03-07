@@ -65,7 +65,7 @@ public class DoctorDetailServiceImpl implements DoctorDetailService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+    @Transactional(rollbackFor = Exception.class)
     public String updateDoctorDetail(DoctorPojoRequest doctorPojoRequest) throws Exception {
         DoctorDetail existingDoctorDetail = doctorDetailRepository.findById(doctorPojoRequest.getId())
                 .orElseThrow(() -> new RuntimeException("Doctor Detail cannot found."));

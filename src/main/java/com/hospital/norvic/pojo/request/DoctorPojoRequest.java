@@ -71,7 +71,7 @@ public class DoctorPojoRequest {
 
     private Integer supervisorInfo;
 
-    @NotBlank(message = "User type cannot be null")
+    @NotNull(message = "User type cannot be null")
     private UserType userType;
 
     private boolean newJoinee;
