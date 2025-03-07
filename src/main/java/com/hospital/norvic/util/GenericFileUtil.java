@@ -29,7 +29,6 @@ public class GenericFileUtil {
         if (!file.exists()) {
             file.mkdir();
         }
-
         String fileName = UUID.randomUUID() + originalFilename;
         image.transferTo(new File(location + fileName));
         return location + fileName;

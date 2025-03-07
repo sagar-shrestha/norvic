@@ -14,6 +14,8 @@ public interface DoctorDetailService {
 
     String updateDoctorDetail(DoctorPojoRequest doctorPojoRequest) throws Exception;
 
+    String saveAndUpdateDoctor(DoctorPojoRequest doctorPojoRequest) throws Exception;
+
     //  DoctorPojoRequest getDoctorDetailById(Integer id) throws InvocationTargetException, IllegalAccessException;
     DoctorPojoResponse getDoctorDetailById(Integer id) throws MalformedURLException;
 

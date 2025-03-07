@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 
@@ -31,6 +32,123 @@ public class DoctorDetailServiceImpl implements DoctorDetailService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public DoctorDetail saveDoctorDetail(DoctorPojoRequest doctorPojoRequest) throws Exception {
+
+        UserInfo userInfo = UserInfo.builder()
+                .firstName(doctorPojoRequest.getFirstName())
+                .middleName(doctorPojoRequest.getMiddleName())
+                .lastName(doctorPojoRequest.getLastName())
+                .gender(doctorPojoRequest.getGender())
+                .permanentAddress(doctorPojoRequest.getPermanentAddress())
+                .temporaryAddress(doctorPojoRequest.getTemporaryAddress())
+                .currentAddress(doctorPojoRequest.getCurrentAddress())
+                .email(doctorPojoRequest.getEmail())
+                .altEmail(doctorPojoRequest.getAltEmail())
+                .phone(doctorPojoRequest.getPhone())
+                .altPhone(doctorPojoRequest.getAltPhone())
+                .mobile(doctorPojoRequest.getMobile())
+                .altMobile(doctorPojoRequest.getAltMobile())
+                .build();
+        nullAwareBeanUtilsBean.copyProperty(userInfo, doctorPojoRequest);
+        String imagePath = genericFileUtil.saveFile(doctorPojoRequest.getPhoto());
+        DoctorInfo doctorInfo = DoctorInfo.builder()
+                .photo(imagePath)
+                .userInfo(userService.saveUser(userInfo))
+                .build();
+        DoctorDetail doctorDetail = DoctorDetail.builder()
+                .doctorInfo(doctorInfoService.saveDoctorInfo(doctorInfo))
+                .department(doctorPojoRequest.getDepartment())
+                .designation(doctorPojoRequest.getDesignation())
+                .roles(doctorPojoRequest.getRoles())
+                .supervisorInfo(UserInfo.builder().id(doctorPojoRequest.getSupervisorInfo()).build())
+                .newJoinee(doctorPojoRequest.isNewJoinee())
+                .transferred(doctorPojoRequest.isTransferred())
+                .build();
+
+        return doctorDetailRepository.save(doctorDetail);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String updateDoctorDetail(DoctorPojoRequest doctorPojoRequest) throws Exception {
+        DoctorDetail existingDoctorDetail = doctorDetailRepository.findById(doctorPojoRequest.getId())
+                .orElseThrow(() -> new RuntimeException("Doctor Detail cannot found."));
+        DoctorInfo existingDoctorInfo = existingDoctorDetail.getDoctorInfo();
+        UserInfo existingUserInfo = existingDoctorInfo.getUserInfo();
+        try {
+            updateDoctor(doctorPojoRequest, existingDoctorInfo, existingUserInfo);
+        } catch (Exception e) {
+            genericFileUtil.reSaveFile(existingDoctorInfo.getPhoto());
+        }
+        return "Doctor Updated successfully.";
+    }
+
+    @Override
+    public String saveAndUpdateDoctor(DoctorPojoRequest doctorPojoRequest) throws Exception {
+        String string = null;
+        if (doctorPojoRequest.getId() == null) {
+            try {
+                saveDoctor(doctorPojoRequest);
+                string = "Doctor saved successfully.";
+            } catch (Exception e) {
+                string = "Doctor cannot saved.";
+            }
+        } else {
+            DoctorDetail existingDoctorDetail = doctorDetailRepository.findById(doctorPojoRequest.getId())
+                    .orElseThrow(() -> new RuntimeException("Doctor Detail cannot found."));
+            DoctorInfo existingDoctorInfo = existingDoctorDetail.getDoctorInfo();
+            UserInfo existingUserInfo = existingDoctorInfo.getUserInfo();
+            try {
+                updateDoctor(doctorPojoRequest, existingDoctorInfo, existingUserInfo);
+                string = "Doctor updated successfully.";
+            } catch (Exception e) {
+                genericFileUtil.reSaveFile(existingDoctorInfo.getPhoto());
+                string = "Doctor update failed.";
+            }
+        }
+        return string;
+    }
+
+    private void updateDoctor(DoctorPojoRequest doctorPojoRequest, DoctorInfo existingDoctorInfo, UserInfo existingUserInfo) throws IOException {
+        UserInfo userInfo = UserInfo.builder()
+                .id(existingUserInfo.getId())
+                .firstName(doctorPojoRequest.getFirstName())
+                .middleName(doctorPojoRequest.getMiddleName())
+                .lastName(doctorPojoRequest.getLastName())
+                .gender(doctorPojoRequest.getGender())
+                .permanentAddress(doctorPojoRequest.getPermanentAddress())
+                .temporaryAddress(doctorPojoRequest.getTemporaryAddress())
+                .currentAddress(doctorPojoRequest.getCurrentAddress())
+                .email(doctorPojoRequest.getEmail())
+                .altEmail(doctorPojoRequest.getAltEmail())
+                .phone(doctorPojoRequest.getPhone())
+                .altPhone(doctorPojoRequest.getAltPhone())
+                .mobile(doctorPojoRequest.getMobile())
+                .altMobile(doctorPojoRequest.getAltMobile())
+                .build();
+        String image = null;
+        if (!doctorPojoRequest.getPhoto().isEmpty()) {
+            image = genericFileUtil.updateFile(doctorPojoRequest.getPhoto(), existingDoctorInfo.getPhoto());
+        }
+        DoctorInfo doctorInfo = DoctorInfo.builder()
+                .id(existingDoctorInfo.getId())
+                .userInfo(userService.updateUser(userInfo))
+                .photo(image)
+                .build();
+        DoctorDetail doctorDetail = DoctorDetail.builder()
+                .id(doctorPojoRequest.getId())
+                .doctorInfo(doctorInfoService.updateDoctorInfo(doctorInfo))
+                .department(doctorPojoRequest.getDepartment())
+                .designation(doctorPojoRequest.getDesignation())
+                .roles(doctorPojoRequest.getRoles())
+                .supervisorInfo(UserInfo.builder().id(doctorPojoRequest.getSupervisorInfo()).build())
+                .newJoinee(doctorPojoRequest.isNewJoinee())
+                .transferred(doctorPojoRequest.isTransferred())
+                .lastBranch(doctorPojoRequest.getLastBranch())
+                .build();
+        doctorDetailRepository.save(doctorDetail);
+    }
+
+    private void saveDoctor(DoctorPojoRequest doctorPojoRequest) throws IOException {
         UserInfo userInfo = UserInfo.builder()
                 .firstName(doctorPojoRequest.getFirstName())
                 .middleName(doctorPojoRequest.getMiddleName())
@@ -60,59 +178,7 @@ public class DoctorDetailServiceImpl implements DoctorDetailService {
                 .newJoinee(doctorPojoRequest.isNewJoinee())
                 .transferred(doctorPojoRequest.isTransferred())
                 .build();
-
-        return doctorDetailRepository.save(doctorDetail);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public String updateDoctorDetail(DoctorPojoRequest doctorPojoRequest) throws Exception {
-        DoctorDetail existingDoctorDetail = doctorDetailRepository.findById(doctorPojoRequest.getId())
-                .orElseThrow(() -> new RuntimeException("Doctor Detail cannot found."));
-        DoctorInfo existingDoctorInfo = existingDoctorDetail.getDoctorInfo();
-        UserInfo existingUserInfo = existingDoctorInfo.getUserInfo();
-        try {
-            UserInfo userInfo = UserInfo.builder()
-                    .id(existingUserInfo.getId())
-                    .firstName(doctorPojoRequest.getFirstName())
-                    .middleName(doctorPojoRequest.getMiddleName())
-                    .lastName(doctorPojoRequest.getLastName())
-                    .gender(doctorPojoRequest.getGender())
-                    .permanentAddress(doctorPojoRequest.getPermanentAddress())
-                    .temporaryAddress(doctorPojoRequest.getTemporaryAddress())
-                    .currentAddress(doctorPojoRequest.getCurrentAddress())
-                    .email(doctorPojoRequest.getEmail())
-                    .altEmail(doctorPojoRequest.getAltEmail())
-                    .phone(doctorPojoRequest.getPhone())
-                    .altPhone(doctorPojoRequest.getAltPhone())
-                    .mobile(doctorPojoRequest.getMobile())
-                    .altMobile(doctorPojoRequest.getAltMobile())
-                    .build();
-            String image = null;
-            if (!doctorPojoRequest.getPhoto().isEmpty()) {
-                image = genericFileUtil.updateFile(doctorPojoRequest.getPhoto(), existingDoctorInfo.getPhoto());
-            }
-            DoctorInfo doctorInfo = DoctorInfo.builder()
-                    .id(existingDoctorInfo.getId())
-                    .userInfo(userService.updateUser(userInfo))
-                    .photo(image)
-                    .build();
-            DoctorDetail doctorDetail = DoctorDetail.builder()
-                    .id(doctorPojoRequest.getId())
-                    .doctorInfo(doctorInfoService.updateDoctorInfo(doctorInfo))
-                    .department(doctorPojoRequest.getDepartment())
-                    .designation(doctorPojoRequest.getDesignation())
-                    .roles(doctorPojoRequest.getRoles())
-                    .supervisorInfo(UserInfo.builder().id(doctorPojoRequest.getSupervisorInfo()).build())
-                    .newJoinee(doctorPojoRequest.isNewJoinee())
-                    .transferred(doctorPojoRequest.isTransferred())
-                    .lastBranch(doctorPojoRequest.getLastBranch())
-                    .build();
-            doctorDetailRepository.save(doctorDetail);
-        } catch (Exception e) {
-            genericFileUtil.reSaveFile(existingDoctorInfo.getPhoto());
-        }
-        return "Doctor Updated successfully.";
+        doctorDetailRepository.save(doctorDetail);
     }
 
     @Override
