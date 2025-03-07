@@ -26,10 +26,11 @@ public class DoctorController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GlobalApiResponse> saveDoctorInfo(@ModelAttribute @Valid DoctorPojoRequest doctorPojoRequest)
             throws Exception {
+                doctorDetailService.saveDoctorDetail(doctorPojoRequest);
 
         return ResponseEntity.ok(GlobalApiResponse
                 .builder()
-                .data(doctorDetailService.saveDoctorDetail(doctorPojoRequest))
+                .data(null)
                 .message("la hai vayo hai save")
                 .status(true)
                 .build());
@@ -44,6 +45,18 @@ public class DoctorController {
                 .data(string)
                 .message("Doctor updated successfully!!!")
                 .status(true).build());
+    }
+
+    @PostMapping
+    public ResponseEntity<GlobalApiResponse> saveAndUpdate(@ModelAttribute @Valid DoctorPojoRequest doctorPojoRequest) throws Exception {
+        String string = doctorDetailService.saveAndUpdateDoctor(doctorPojoRequest);
+
+        return ResponseEntity.ok(GlobalApiResponse
+                .builder()
+                .data(null)
+                .message(string)
+                .status(true)
+                .build());
     }
 
     @GetMapping("/{id}")
